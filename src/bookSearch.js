@@ -6,20 +6,31 @@ import {Link} from 'react-router-dom';
 
 class BookSearch extends Component {
     static propTypes = {
+        books: PropTypes.array.isRequired,
         onShelfChange: PropTypes.func.isRequired
     }
 
     state = {
         query: '',
-        books: []
+        searchBooks: []
     }
 
     search = (query) => {
-        BooksAPI.search(query).then((books) => {
-            console.log(books)
-            if(Array.isArray(books)){
+        BooksAPI.search(query).then((searchBooks) => {
+            if(Array.isArray(searchBooks)){
+                for(const book of this.props.books){
+                    for(const searchBook of searchBooks){
+                        if(searchBook.id === book.id){
+                            searchBook.shelf = book.shelf
+                        }
+                    }
+                }
                 this.setState(() => ({
-                    books
+                    searchBooks
+                }))
+            }else{
+                this.setState(() => ({
+                    searchBooks: []
                 }))
             }
         })
@@ -34,7 +45,7 @@ class BookSearch extends Component {
         }
         else {
             this.setState(() => ({
-                books: []
+                searchBooks: []
             }))
         }
     }
@@ -44,7 +55,7 @@ class BookSearch extends Component {
     }
 
     render() {
-        const { query, books } = this.state
+        const { query, searchBooks } = this.state
         const { onShelfChange } = this.props
 
         return (
@@ -60,7 +71,7 @@ class BookSearch extends Component {
                     </div>
                 </div>
                 <div className="search-books-results">
-                    <BookGrid books={books} onShelfChange={onShelfChange}></BookGrid>
+                    <BookGrid books={searchBooks} onShelfChange={onShelfChange}></BookGrid>
                 </div>
             </div>
         )
